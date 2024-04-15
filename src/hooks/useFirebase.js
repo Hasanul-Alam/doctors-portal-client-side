@@ -9,6 +9,7 @@ const useFirebase = () => {
     const [user, setUser] = useState({});
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
 
     // Auth
     const auth = getAuth();
@@ -21,10 +22,12 @@ const useFirebase = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(result => {
                 setUser(result.user);
-                console.log('user is successfully registered.');
+                setError('');
+                setOpenModal(true);
             })
             .catch(error => {
-                setError(error.message)
+                setError(error.message);
+                setOpenModal(false);
             })
             .finally(() => {
                 setIsLoading(false);
@@ -37,7 +40,7 @@ const useFirebase = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(result => {
                 setUser(result.user);
-                console.log('Login successfull.');
+                setError('');
             })
             .catch(error => {
                 setError(error.message)
@@ -52,6 +55,7 @@ const useFirebase = () => {
         signInWithPopup(auth, googleProvider)
             .then(result => {
                 setUser(result.user);
+                setError('');
             })
             .then(error => {
                 setError(error.message);
@@ -62,7 +66,7 @@ const useFirebase = () => {
     const logOut = () => {
         signOut(auth)
             .then(() => {
-                console.log('Sign-out successfull');
+                setError('');
             })
             .catch(error => {
                 setError(error.message);
@@ -90,6 +94,8 @@ const useFirebase = () => {
         user,
         error,
         isLoading,
+        openModal,
+        setOpenModal,
         registerUser,
         loginWithEmailAndPassword,
         googleSignIn,

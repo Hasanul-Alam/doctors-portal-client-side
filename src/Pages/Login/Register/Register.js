@@ -6,12 +6,10 @@ import useAuth from '../../../hooks/useAuth';
 
 const Register = () => {
     const [formData, setFormData] = useState({});
-    const { registerUser, googleSignIn, isLoading, user } = useAuth();
-
-    const [open, setOpen] = React.useState(false);
+    const { registerUser, googleSignIn, isLoading, user, error, open: openModal, setOpen: setOpenModal } = useAuth();
 
     const handleClose = () => {
-        setOpen(false);
+        setOpenModal(false);
     };
 
     const handleOnChange = event => {
@@ -22,14 +20,13 @@ const Register = () => {
         setFormData(newFormData);
     }
 
-    const handleRegistrationSubmit = event => {
+    const handleRegistrationSubmit = (event) => {
         const email = formData.email;
         const password = formData.password;
         const password2 = formData.password2;
 
         if (password === password2 && !user.email) {
             registerUser(email, password);
-            setOpen(true);
         }
         else if (user.email) {
             alert('You already registered.');
@@ -82,10 +79,11 @@ const Register = () => {
                             <br />
                             <NavLink style={{ textDecoration: 'none' }} sx={{}} to='/login'>Already registered?</NavLink>
                         </form>}
+                        {error && <Typography variant='subtitle2' gutterBottom sx={{ textAlign: 'center', mt: 3 }} style={{ color: 'red' }}>{error}</Typography>}
 
                         {/* Open dialog for successfully registration */}
-                        {open && <Dialog
-                            open={open}
+                        {openModal && <Dialog
+                            open={openModal}
                             onClose={handleClose}
                             aria-labelledby="alert-dialog-title"
                             aria-describedby="alert-dialog-description"

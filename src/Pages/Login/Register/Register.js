@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, Paper, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import loginImg from '../../../images/login.png';
@@ -6,7 +6,13 @@ import useAuth from '../../../hooks/useAuth';
 
 const Register = () => {
     const [formData, setFormData] = useState({});
-    const { registerUser, googleSignIn } = useAuth();
+    const { registerUser, googleSignIn, isLoading, user } = useAuth();
+
+    const [open, setOpen] = React.useState(false);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const handleOnChange = event => {
         const field = event.target.name;
@@ -21,8 +27,12 @@ const Register = () => {
         const password = formData.password;
         const password2 = formData.password2;
 
-        if (password === password2) {
+        if (password === password2 && !user.email) {
             registerUser(email, password);
+            setOpen(true);
+        }
+        else if (user.email) {
+            alert('You already registered.');
         }
         else {
             alert('Please carefully put your passwords.');
@@ -38,7 +48,7 @@ const Register = () => {
                         <Typography variant='h5' gutterBottom sx={{ textAlign: 'center', mb: 5 }} style={{ color: 'gray' }}>
                             Registration
                         </Typography>
-                        <form onSubmit={handleRegistrationSubmit}>
+                        {isLoading ? <div style={{ textAlign: 'center' }}><CircularProgress /></div> : <form onSubmit={handleRegistrationSubmit}>
                             <TextField
                                 sx={{ width: 1, py: 3 }}
                                 id="standard-basic"
@@ -68,10 +78,30 @@ const Register = () => {
                                 required
                             />
                             <Button type='submit' variant="contained" style={{ backgroundColor: '#17d2ba', width: '100%' }} sx={{ my: 3 }}>Sign Up</Button>
-                        </form>
-                        <Button onClick={googleSignIn} variant="contained" style={{ backgroundColor: '#17d2ba' }} sx={{ mb: 3 }}>Continue With Google</Button>
-                        <br />
-                        <NavLink style={{ textDecoration: 'none' }} sx={{}} to='/login'>Already registered?</NavLink>
+                            <Button onClick={googleSignIn} variant="contained" style={{ backgroundColor: '#17d2ba' }} sx={{ mb: 3 }}>Continue With Google</Button>
+                            <br />
+                            <NavLink style={{ textDecoration: 'none' }} sx={{}} to='/login'>Already registered?</NavLink>
+                        </form>}
+
+                        {/* Open dialog for successfully registration */}
+                        {open && <Dialog
+                            open={open}
+                            onClose={handleClose}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Congratulations!! You have successfully registered.
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleClose} autoFocus>
+                                    Okay
+                                </Button>
+                            </DialogActions>
+                        </Dialog>}
+
                     </Paper>
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6}>

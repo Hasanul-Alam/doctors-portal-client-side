@@ -8,6 +8,7 @@ initializeFirebase();
 const useFirebase = () => {
     const [user, setUser] = useState({});
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     // Auth
     const auth = getAuth();
@@ -16,6 +17,7 @@ const useFirebase = () => {
     const googleProvider = new GoogleAuthProvider();
 
     const registerUser = (email, password) => {
+        setIsLoading(true);
         createUserWithEmailAndPassword(auth, email, password)
             .then(result => {
                 setUser(result.user);
@@ -24,10 +26,14 @@ const useFirebase = () => {
             .catch(error => {
                 setError(error.message)
             })
+            .finally(() => {
+                setIsLoading(false);
+            })
     }
 
     // Login user with email and password
     const loginWithEmailAndPassword = (email, password) => {
+        setIsLoading(true);
         signInWithEmailAndPassword(auth, email, password)
             .then(result => {
                 setUser(result.user);
@@ -36,17 +42,20 @@ const useFirebase = () => {
             .catch(error => {
                 setError(error.message)
             })
+            .finally(() => {
+                setIsLoading(false);
+            })
     }
 
     // Google Sign-In
     const googleSignIn = () => {
         signInWithPopup(auth, googleProvider)
-        .then(result => {
-            setUser(result.user);
-        })
-        .then(error => {
-            setError(error.message);
-        })
+            .then(result => {
+                setUser(result.user);
+            })
+            .then(error => {
+                setError(error.message);
+            })
     }
 
     // Logout user
@@ -57,6 +66,9 @@ const useFirebase = () => {
             })
             .catch(error => {
                 setError(error.message);
+            })
+            .finally(() => {
+                setIsLoading(false)
             })
     }
 
@@ -69,6 +81,7 @@ const useFirebase = () => {
             else {
                 setUser({})
             }
+            setIsLoading(false)
         });
         return () => unSubscribe;
     }, [])
@@ -76,6 +89,7 @@ const useFirebase = () => {
     return {
         user,
         error,
+        isLoading,
         registerUser,
         loginWithEmailAndPassword,
         googleSignIn,

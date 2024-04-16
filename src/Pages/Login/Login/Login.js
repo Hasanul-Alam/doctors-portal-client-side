@@ -1,12 +1,14 @@
-import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Alert, Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import loginImg from '../../../images/login.png';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 
 const Login = () => {
     const [formData, setFormData] = useState({});
-    const {loginWithEmailAndPassword} = useAuth();
+    const {loginWithEmailAndPassword, error, setUser, setError, setIsLoading} = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const handleOnChange = event => {
         const field = event.target.name;
@@ -19,9 +21,19 @@ const Login = () => {
     const handleLoginSubmit = event => {
         const email = formData.email;
         const password = formData.password;
-        console.log(email, password);
 
-        loginWithEmailAndPassword(email, password);
+        loginWithEmailAndPassword(email, password)
+        .then(result => {
+            setUser(result.user);
+            setError('');
+            navigate(location?.state ? location.state : '/');
+        })
+        .catch(error => {
+            setError(error.message)
+        })
+        .finally(() => {
+            setIsLoading(false);
+        })
         event.preventDefault();
     }
     return (
@@ -54,7 +66,13 @@ const Login = () => {
                             />
                             <Button type='submit' variant="contained" style={{ backgroundColor: '#17d2ba', width: '100%' }} sx={{ my: 3 }}>Sign In</Button>
                         </form>
+
+                        {/* Register Route link if user doesn't have an account */}
                         <NavLink style={{textDecoration:'none'}} sx={{}} to='/register'>Don't have an account?</NavLink>
+
+                        {/* Show error message here. */}
+                        {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
+
                     </Paper>
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6}>

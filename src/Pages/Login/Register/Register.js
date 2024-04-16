@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, Paper, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import loginImg from '../../../images/login.png';
@@ -6,7 +6,7 @@ import useAuth from '../../../hooks/useAuth';
 
 const Register = () => {
     const [formData, setFormData] = useState({});
-    const { registerUser, googleSignIn, isLoading, user, error, open: openModal, setOpen: setOpenModal } = useAuth();
+    const { registerUser, googleSignIn, isLoading, user, error, openModal, setOpenModal, setError } = useAuth();
 
     const handleClose = () => {
         setOpenModal(false);
@@ -29,10 +29,10 @@ const Register = () => {
             registerUser(email, password);
         }
         else if (user.email) {
-            alert('You already registered.');
+            setError('You already registered with this email.');
         }
         else {
-            alert('Please carefully put your passwords.');
+            setError('Please carefully put your passwords.');
         }
         event.preventDefault();
     }
@@ -79,7 +79,7 @@ const Register = () => {
                             <br />
                             <NavLink style={{ textDecoration: 'none' }} sx={{}} to='/login'>Already registered?</NavLink>
                         </form>}
-                        {error && <Typography variant='subtitle2' gutterBottom sx={{ textAlign: 'center', mt: 3 }} style={{ color: 'red' }}>{error}</Typography>}
+                        {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
 
                         {/* Open dialog for successfully registration */}
                         {openModal && <Dialog

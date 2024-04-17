@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import initializeFirebase from "../Pages/Login/Login/Firebase/firebase.init";
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
 
 // Initialize Firebase App
 initializeFirebase();
@@ -9,7 +9,6 @@ const useFirebase = () => {
     const [user, setUser] = useState({});
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [openModal, setOpenModal] = useState(false);
 
     // Auth
     const auth = getAuth();
@@ -17,28 +16,17 @@ const useFirebase = () => {
     // Google Auth Provider
     const googleProvider = new GoogleAuthProvider();
 
-    const registerUser = (email, password) => {
+    const registerUser = (email, password, name, navigate) => {
         setIsLoading(true);
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(result => {
-                setUser(result.user);
-                setError('');
-                setOpenModal(true);
-            })
-            .catch(error => {
-                setError(error.message);
-                setOpenModal(false);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            })
+        return createUserWithEmailAndPassword(auth, email, password)
+            
     }
 
     // Login user with email and password
     const loginWithEmailAndPassword = (email, password) => {
         setIsLoading(true);
         return signInWithEmailAndPassword(auth, email, password)
-            
+
     }
 
     // Google Sign-In
@@ -81,13 +69,12 @@ const useFirebase = () => {
         user,
         error,
         isLoading,
-        openModal,
-        setOpenModal,
+        auth,
+        setUser,
         registerUser,
         loginWithEmailAndPassword,
         googleSignIn,
         setError,
-        setUser,
         setIsLoading,
         logOut
     }

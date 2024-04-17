@@ -1,18 +1,18 @@
-import { Alert, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import loginImg from '../../../images/login.png';
 import useAuth from '../../../hooks/useAuth';
+import { updateProfile } from 'firebase/auth';
 
 const Register = () => {
     const [formData, setFormData] = useState({});
-    const { registerUser, googleSignIn, isLoading, user, error, openModal, setOpenModal, setError } = useAuth();
+    const navigate = useNavigate();
+    const { registerUser, googleSignIn, isLoading, user, error, setError, auth, setUser, setIsLoading } = useAuth();
 
-    const handleClose = () => {
-        setOpenModal(false);
-    };
+    
 
-    const handleOnChange = event => {
+    const handleFormData = event => {
         const field = event.target.name;
         const value = event.target.value;
         const newFormData = { ...formData };
@@ -21,21 +21,45 @@ const Register = () => {
     }
 
     const handleRegistrationSubmit = (event) => {
+        event.preventDefault();
+        const name = formData.name;
         const email = formData.email;
         const password = formData.password;
         const password2 = formData.password2;
 
-        if (password === password2 && !user.email) {
-            registerUser(email, password);
+        if (password === password2 && !user) {
+            registerUser(email, password, name, navigate)
+                .then(result => {
+                    const newUser = { email, displayName: name }
+                    setUser(newUser);
+                    setError('');
+
+                    // Send name to firebase after creation
+                    updateProfile(auth.currentUser, {
+                        displayName: name
+                    }).then(() => {
+
+                    }).catch((error) => {
+                        setError(error.message);
+                    });
+                })
+                .catch(error => {
+                    setError(error.message);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                    navigate('/');
+                })
         }
-        else if (user.email) {
+        else if (user) {
             setError('You already registered with this email.');
         }
         else {
             setError('Please carefully put your passwords.');
         }
-        event.preventDefault();
     }
+
+
 
     return (
         <Container sx={{ mt: 5, }}>
@@ -48,9 +72,17 @@ const Register = () => {
                         {isLoading ? <div style={{ textAlign: 'center' }}><CircularProgress /></div> : <form onSubmit={handleRegistrationSubmit}>
                             <TextField
                                 sx={{ width: 1, py: 3 }}
-                                id="standard-basic"
+                                label="Your Name"
+                                onBlur={handleFormData}
+                                name='name'
+                                variant="standard"
+                                type="text"
+                                required
+                            />
+                            <TextField
+                                sx={{ width: 1, py: 3 }}
                                 label="Your Email"
-                                onChange={handleOnChange}
+                                onBlur={handleFormData}
                                 name='email'
                                 variant="standard"
                                 type="email"
@@ -59,7 +91,7 @@ const Register = () => {
                             <TextField
                                 sx={{ width: 1, py: 3 }}
                                 label="Enter Password"
-                                onChange={handleOnChange}
+                                onBlur={handleFormData}
                                 name='password'
                                 variant="standard"
                                 type="password"
@@ -68,7 +100,7 @@ const Register = () => {
                             <TextField
                                 sx={{ width: 1, py: 3 }}
                                 label="Retype Your Password"
-                                onChange={handleOnChange}
+                                onBlur={handleFormData}
                                 name='password2'
                                 variant="standard"
                                 type="password"
@@ -81,24 +113,7 @@ const Register = () => {
                         </form>}
                         {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
 
-                        {/* Open dialog for successfully registration */}
-                        {openModal && <Dialog
-                            open={openModal}
-                            onClose={handleClose}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogContent>
-                                <DialogContentText id="alert-dialog-description">
-                                    Congratulations!! You have successfully registered.
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleClose} autoFocus>
-                                    Okay
-                                </Button>
-                            </DialogActions>
-                        </Dialog>}
+                        
 
                     </Paper>
                 </Grid>

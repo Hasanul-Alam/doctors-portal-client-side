@@ -1,5 +1,5 @@
-import { Container, Grid, Typography } from '@mui/material';
-import React from 'react';
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, Grid, Typography } from '@mui/material';
+import React, { useState } from 'react';
 import Booking from '../Booking/Booking';
 
 const bookings = [
@@ -42,22 +42,46 @@ const bookings = [
 ]
 
 const AvailableAppointments = ({ date }) => {
+    const [bookingSuccess, setBookingSuccess] = useState(false);
 
     const firstFormat = date.toString();
     const organizedDate = new Date(firstFormat).toDateString();
 
+    const handleModalClose = () => {
+        setBookingSuccess(false);
+    };
+
     return (
         <Container>
-            <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold', my:3 }} style={{ color: '#17d2ba' }}>Available Appoinements on {organizedDate}</Typography>
+            <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold', my: 3 }} style={{ color: '#17d2ba' }}>Available Appoinements on {organizedDate}</Typography>
             <Grid container spacing={2}>
                 {
                     bookings.map(booking => <Booking
                         key={booking.id}
                         booking={booking}
                         date={organizedDate}
+                        setBookingSuccess={setBookingSuccess}
                     ></Booking>)
                 }
             </Grid>
+            {/* Open dialog for successfully registration */}
+            {bookingSuccess && <Dialog
+                open={bookingSuccess}
+                onClose={handleModalClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Congratulations!! Your appointment is booked successfully.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleModalClose} autoFocus>
+                        Okay
+                    </Button>
+                </DialogActions>
+            </Dialog>}
         </Container>
     );
 };

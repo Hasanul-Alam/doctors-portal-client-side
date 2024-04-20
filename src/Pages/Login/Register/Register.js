@@ -8,7 +8,7 @@ import { updateProfile } from 'firebase/auth';
 const Register = () => {
     const [formData, setFormData] = useState({});
     const navigate = useNavigate();
-    const { registerUser, googleSignIn, isLoading, user, error, setError, auth, setUser, setIsLoading } = useAuth();
+    const { registerUser, googleSignIn, isLoading, user, error, setError, auth, setUser, setIsLoading, saveUser } = useAuth();
 
     
 
@@ -33,6 +33,8 @@ const Register = () => {
                     const newUser = { email, displayName: name }
                     setUser(newUser);
                     setError('');
+                    // save user to the database
+                    saveUser(email, name);
 
                     // Send name to firebase after creation
                     updateProfile(auth.currentUser, {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import initializeFirebase from "../Pages/Login/Login/Firebase/firebase.init";
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import axios from "axios";
 
 // Initialize Firebase App
 initializeFirebase();
@@ -19,7 +20,7 @@ const useFirebase = () => {
     const registerUser = (email, password, name, navigate) => {
         setIsLoading(true);
         return createUserWithEmailAndPassword(auth, email, password)
-            
+
     }
 
     // Login user with email and password
@@ -33,10 +34,12 @@ const useFirebase = () => {
     const googleSignIn = () => {
         signInWithPopup(auth, googleProvider)
             .then(result => {
-                setUser(result.user);
+                const user = result.user;
+                setUser(user);
+                saveGoogleUser(user.email, user.displayName)
                 setError('');
             })
-            .then(error => {
+            .catch(error => {
                 setError(error.message);
             })
     }
@@ -65,6 +68,22 @@ const useFirebase = () => {
         return () => unSubscribe;
     }, [])
 
+    const saveUser = (email, displayName) => {
+        const user = { email, displayName };
+        axios.post('http://localhost:5000/users', user)
+        .then(res => console.log(res.data))
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    const saveGoogleUser = (email, displayName) => {
+        const user= {email, displayName};
+        axios.put('http://localhost:5000/users', user)
+        .then(res => console.log(res))
+        .catch(error => console.log(error))
+    }
+
     return {
         user,
         error,
@@ -76,6 +95,7 @@ const useFirebase = () => {
         googleSignIn,
         setError,
         setIsLoading,
+        saveUser,
         logOut
     }
 }

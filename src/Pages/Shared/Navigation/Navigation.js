@@ -28,7 +28,12 @@ const Navigation = () => {
                         Doctors Portal
                     </Typography>
                     <Link to='/appointment'><Button color="inherit">Appointment</Button></Link>
-                    {user?.email ? <Button onClick={logOut} color="inherit">Logout</Button> : <NavLink to='/login'><Button color="inherit">Login</Button></NavLink>}
+                    {user?.email ?
+                        <Box>
+                            <NavLink to='/dashboard'><Button color="inherit">Dashboard</Button></NavLink>
+                            <Button onClick={logOut} color="inherit">Logout</Button>
+                        </Box>
+                        : <NavLink to='/login'><Button color="inherit">Login</Button></NavLink>}
                 </Toolbar>
             </AppBar>
         </Box>
